@@ -18,6 +18,7 @@ Switch version:
 ```sh
 $ tfm use 0.12.6
 Done, current terraform version is 0.12.6
+
 $ terraform version
 Terraform v0.12.6
 
