@@ -4,8 +4,8 @@
 
 set -e
 
-TFM_PREFIX=${TFM_PREFIX:-"~/.opt/bin"}
-TFM_DIR=${TFM_DIR:-"~/.tfm"}
+TFM_PREFIX=${TFM_PREFIX:-"$HOME/.opt/bin"}
+TFM_DIR=${TFM_DIR:-"$HOME/.tfm"}
 TFM_OS=${TFM_OS:-"darwin_amd64"}
 
 function printenv() {
