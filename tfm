@@ -115,7 +115,23 @@ function list_remote() {
 }
 
 function usage() {
-    echo "tfm versions|version|use <version>|install <version>|alias <version> <name>|list-remote"
+    cat << EOF 
+Usage: tfm <subcommand> [args]
+
+  Terraform version manager. Easily install and switch between multiple terraform versions. 
+  Supports aliasing to use versions in parallel. Uses symlinks, so no bash-shims are needed.
+
+  Made from 100% organic, gluten free bash code.
+
+Subcommands:
+    versions                    List available versions and aliases
+    version                     Show currently active version
+    use <version>               Select <version> as the currently active version
+    alias <version> <name>      Set a named alias for <version> in your \$PATH
+    install <version>           Install version from releases.hashicorp.com
+    list-remote                 List available versions on releases.hashicorp.com
+    printenv                    Print environment settings used by tfenv
+EOF
 }
 
 case $1 in
