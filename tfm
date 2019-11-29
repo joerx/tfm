@@ -2,7 +2,7 @@
 
 # Terraform Version Manager
 
-set -e
+set -e -o pipefail
 
 TFM_PREFIX=${TFM_PREFIX:-"$HOME/.opt/bin"}
 TFM_DIR=${TFM_DIR:-"$HOME/.tfm"}
@@ -15,8 +15,15 @@ function printenv() {
 }
 
 function list() {
-    local versions=$(ls -l1 $TFM_DIR)
+    mkdir -p $TFM_DIR/versions
+    mkdir -p $TFM_DIR/aliases
+
+    local versions=$(ls -l1 $TFM_DIR/versions)
+    local aliases=$(ls -l1 $TFM_DIR/aliases)
+
     local current=$(current)
+
+    echo "Versions:"
     
     for v in $versions; do
         if [[ "$v" == "$current" ]]; then
@@ -25,39 +32,69 @@ function list() {
             echo "  $v"
         fi
     done
+
+    echo
+    echo "Aliases:"
+
+    for a in $aliases; do
+        local target=$(_readlink $TFM_DIR/aliases/$a)
+        echo "  $a = $target"
+    done
+
+    echo
 }
 
-function link() {
-    local version=$1
+function _readlink() {
+    readlink ${1} | sed "s@^$TFM_DIR/versions/@@" | sed 's@/terraform$@@'
+}
 
-    if [[ -z "$version" ]]; then
-        echo "Missing version version for linking"
+function _unlink() {
+    local link=${1}
+    if [[ -L $link ]]; then
+        unlink $link
+    fi
+    if [[ -e $link ]]; then
+        echo "Failed to remove existing symlink $link or is not a symlink"
         exit 1
     fi
-    if [[ ! -f "$TFM_DIR/$version/terraform" ]]; then
+}
+
+function set_alias() {
+    local version=$1
+    local alias=$2
+
+    if [[ -z "$version" ]]; then
+        echo "Usage: tfm alias <version> <alias>"
+        exit 1
+    fi
+    if [[ -z "$alias" ]]; then
+        echo "tfm alias <version> <alias>"
+        exit 1
+    fi
+    if [[ ! -f "$TFM_DIR/versions/$version/terraform" ]]; then
         echo "Version terraform-$version is not installed, run '$0 install $version' to install it"
         exit 1
     fi
 
-    if [[ -L $TFM_PREFIX/terraform ]]; then
-        unlink $TFM_PREFIX/terraform
-    fi
-    if [[ -e $TFM_PREFIX/terraform ]]; then
-        echo "Failed to remove existing symlink $TFM_PREFIX/terraform or is not a symlink"
-        exit 1
-    fi
+    mkdir -p $TFM_DIR/aliases
 
-    ln -s $TFM_DIR/$version/terraform $TFM_PREFIX/terraform
+    _unlink $TFM_DIR/aliases/$alias 
+    _unlink $TFM_PREFIX/$alias
 
-    echo "Done, current terraform version is $(current)"
+    ln -s $TFM_DIR/versions/$version/terraform $TFM_DIR/aliases/$alias
+    ln -s $TFM_DIR/aliases/$alias $TFM_PREFIX/$alias
+
+    echo "Aliased terraform version ${version} to ${alias}"
+}
+
+function link() {
+    local version=$1
+    set_alias $1 terraform
+    echo "Current terraform version is $(current)"
 }
 
 function current() {
-    readlink $TFM_PREFIX/terraform | sed "s@$TFM_DIR/@@" | awk -F'/' '{ print $1 }'
-}
-
-function usage() {
-    echo "$0 versions|version|use <version>|install <version>"
+    _readlink $TFM_DIR/aliases/terraform
 }
 
 function install() {
@@ -68,26 +105,40 @@ function install() {
     fi
 
     curl -fO https://releases.hashicorp.com/terraform/${version}/terraform_${version}_${TFM_OS}.zip
-    mkdir -p $TFM_DIR/$version
-    unzip terraform_${version}_${TFM_OS}.zip -d $TFM_DIR/$version/
+    mkdir -p $TFM_DIR/versions/$version
+    unzip terraform_${version}_${TFM_OS}.zip -d $TFM_DIR/versions/$version/
     rm terraform_${version}_${TFM_OS}.zip
 }
 
+function list_remote() {
+    curl -sS -f https://releases.hashicorp.com/terraform/ | grep "href=\"/terraform" | sed 's@.*terraform_\([0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}.*\)<.*@\1@'
+}
+
+function usage() {
+    echo "tfm versions|version|use <version>|install <version>|alias <version> <name>|list-remote"
+}
+
 case $1 in
-    "versions")
+    versions|list)
         list
         ;;
-    "version")
+    version|current)
         current
         ;;
-    "use")
+    use)
         link $2
         ;;
-    "install")
+    install)
         install $2
         ;;
-    "printenv")
+    alias)
+        set_alias $2 $3
+        ;;
+    printenv)
         printenv
+        ;;
+    list-remote)
+        list_remote
         ;;
     *)
         usage
