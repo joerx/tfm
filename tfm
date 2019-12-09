@@ -15,15 +15,20 @@ function printenv() {
 }
 
 function list() {
+    echo "Versions:"
+    list_versions
+    echo
+    echo "Aliases:"
+    list_aliases
+    echo
+}
+
+function list_versions() {
     mkdir -p $TFM_DIR/versions
-    mkdir -p $TFM_DIR/aliases
 
     local versions=$(ls -l1 $TFM_DIR/versions)
-    local aliases=$(ls -l1 $TFM_DIR/aliases)
-
     local current=$(current)
 
-    echo "Versions:"
     
     for v in $versions; do
         if [[ "$v" == "$current" ]]; then
@@ -32,16 +37,17 @@ function list() {
             echo "  $v"
         fi
     done
+}
 
-    echo
-    echo "Aliases:"
+function list_aliases() {
+    mkdir -p $TFM_DIR/aliases
+
+    local aliases=$(ls -l1 $TFM_DIR/aliases)
 
     for a in $aliases; do
         local target=$(_readlink $TFM_DIR/aliases/$a)
         echo "  $a = $target"
     done
-
-    echo
 }
 
 function _readlink() {
@@ -72,7 +78,10 @@ function set_alias() {
         exit 1
     fi
     if [[ ! -f "$TFM_DIR/versions/$version/terraform" ]]; then
-        echo "Version terraform-$version is not installed, run '$0 install $version' to install it"
+        echo "Terraform $version is not installed, run '$0 install $version' to install it."
+        echo
+        echo "Installed versions:"
+        list_versions
         exit 1
     fi
 
@@ -121,7 +130,7 @@ Usage: tfm <subcommand> [args]
   Terraform version manager. Easily install and switch between multiple terraform versions. 
   Supports aliasing to use versions in parallel. Uses symlinks, so no bash-shims are needed.
 
-  Made from 100% organic, gluten free bash code.
+  Made from 100% organic, gluten free, non-GMO bash code.
 
 Subcommands:
     versions                    List available versions and aliases
