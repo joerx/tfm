@@ -2,20 +2,24 @@
 
 Install and quickly switch terraform versions
 
+## Requirements
+
+Only Linux and macOS are supported. Since this is a bash script, no native Windows support is planned.
+
 ## Setup
 
 - Clone this repo and copy [tfm](./tfm) somewhere into your `$PATH`
-- Make sure `~/.opt/bin` exists and is on your path
+- Make sure `~/.local/bin` exists and is on your path
 - Alternatively, set `TFM_PREFIX` to a different value in your shell profile
 
 ```sh
 # ~/.bash_profile
-export PATH=$HOME/.opt/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 
 # or:
 
-export PATH=$HOME/.bin
-TFM_PREFIX=$HOME/.bin
+export PATH=$HOME/.bin:$PATH
+export TFM_PREFIX=$HOME/.bin
 ```
 
 ## Usage
@@ -73,7 +77,7 @@ $ tfm list-remote | grep ^0.12
 
 ## Customization
 
-By default, terraform versions are installed in `~/.tfm` and the `terraform` binary will be linked to `~/.opt/bin`. macOS will be assumed as operating system (contributions welcome).
+By default, terraform versions are installed in `~/.tfm` and the `terraform` binary will be linked to `~/.local/bin`.
 
 Some env vars can be used to customize those defaults. Run `tfm printenv` to see which ones exist and what the current values are:
 
@@ -81,9 +85,8 @@ Some env vars can be used to customize those defaults. Run `tfm printenv` to see
 $ tfm printenv
 TFM_PREFIX: ~/.opt/bin
 TFM_DIR: ~/.tfm
-TFM_OS: darwin_amd64
 ```
 
 ## Acknowledgements
 
-Thanks to [Hashicorp](https://www.hashicorp.com/) for building Terraform and making IaC a thing - and for breaking compatibility to badly that this tool became necessary.
+Thanks to [Hashicorp](https://www.hashicorp.com/) for Terraform and nvm for inspiration.

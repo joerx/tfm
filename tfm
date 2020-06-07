@@ -4,9 +4,8 @@
 
 set -e -o pipefail
 
-TFM_PREFIX=${TFM_PREFIX:-"$HOME/.opt/bin"}
+TFM_PREFIX=${TFM_PREFIX:-"$HOME/.local/bin"}
 TFM_DIR=${TFM_DIR:-"$HOME/.tfm"}
-TFM_OS=${TFM_OS:-"darwin_amd64"}
 
 function printenv() {
     echo "TFM_PREFIX: $TFM_PREFIX"
@@ -21,6 +20,35 @@ function list() {
     echo "Aliases:"
     list_aliases
     echo
+}
+
+function get_arch() {
+    local os
+    local arch
+
+    case "$OSTYPE" in
+        linux-gnu*)
+            os=linux
+            ;;
+        darwin*)
+            os=darwin
+            ;;
+        *)
+            >&2 echo "Unsupported \$OSTYPE: '$OSTYPE'"
+            return 1
+    esac
+
+    arch=$(uname -m)
+    case "${arch}" in
+        x86_64)
+            arch=amd64
+            ;;
+        *)
+            >&2 echo "Unsupported architecture: '$arch"
+            return 1        
+    esac
+
+    echo "${os}_${arch}"
 }
 
 function list_versions() {
@@ -108,15 +136,19 @@ function current() {
 
 function install() {
     local version=$1
+    local arch=$(get_arch)
+
+    echo "Installing Terraform ${version} for $arch"
+
     if [[ -z "$version" ]]; then
         echo "Missing target version for installation"
         exit 1
     fi
 
-    curl -fO https://releases.hashicorp.com/terraform/${version}/terraform_${version}_${TFM_OS}.zip
+    curl -fO https://releases.hashicorp.com/terraform/${version}/terraform_${version}_${arch}.zip
     mkdir -p $TFM_DIR/versions/$version
-    unzip terraform_${version}_${TFM_OS}.zip -d $TFM_DIR/versions/$version/
-    rm terraform_${version}_${TFM_OS}.zip
+    unzip terraform_${version}_${arch}.zip -d $TFM_DIR/versions/$version/
+    rm terraform_${version}_${arch}.zip
 }
 
 function list_remote() {
