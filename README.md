@@ -4,7 +4,7 @@ Install and quickly switch terraform versions
 
 ## Requirements
 
-Only Linux and macOS are supported. Since this is a bash script, no native Windows support is planned.
+Only Linux and macOS are supported. OS detection only works for `amd64` since I don't have an arm device for testing. This is a bash script, no native Windows support is planned. 
 
 ## Setup
 
