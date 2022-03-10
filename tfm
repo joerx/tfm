@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Terraform Version Manager
+# tfm - Terraform Version Manager
 
 set -e -o pipefail
 
@@ -8,18 +8,18 @@ TFM_PREFIX=${TFM_PREFIX:-"$HOME/.local/bin"}
 TFM_DIR=${TFM_DIR:-"$HOME/.tfm"}
 
 function printenv() {
-    echo "TFM_PREFIX: $TFM_PREFIX"
-    echo "TFM_DIR: $TFM_DIR"
-    echo "TFM_OS: $TFM_OS"
+    echo "Architecture:"
+    echo "  $(get_arch)"
+    echo "Environment:"
+    echo "  TFM_PREFIX: $TFM_PREFIX"
+    echo "  TFM_DIR: $TFM_DIR"
 }
 
 function list() {
     echo "Versions:"
     list_versions
-    echo
     echo "Aliases:"
     list_aliases
-    echo
 }
 
 function get_arch() {
@@ -42,6 +42,9 @@ function get_arch() {
     case "${arch}" in
         x86_64)
             arch=amd64
+            ;;
+        arm64)
+            arch=arm64
             ;;
         *)
             >&2 echo "Unsupported architecture: '$arch"
@@ -151,7 +154,7 @@ function install() {
     rm terraform_${version}_${arch}.zip
 }
 
-function list_remote() {
+function releases() {
     curl -sS -f https://releases.hashicorp.com/terraform/ | grep "href=\"/terraform" | sed 's@.*terraform_\([0-9]\{1,\}.[0-9]\{1,\}.[0-9]\{1,\}.*\)<.*@\1@'
 }
 
@@ -170,7 +173,7 @@ Subcommands:
     use <version>               Select <version> as the currently active version
     alias <version> <name>      Set a named alias for <version> in your \$PATH
     install <version>           Install version from releases.hashicorp.com
-    list-remote                 List available versions on releases.hashicorp.com
+    releases                    List available versions on releases.hashicorp.com
     printenv                    Print environment settings used by tfenv
 EOF
 }
@@ -194,8 +197,8 @@ case $1 in
     printenv)
         printenv
         ;;
-    list-remote)
-        list_remote
+    releases)
+        releases
         ;;
     *)
         usage

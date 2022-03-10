@@ -1,15 +1,15 @@
 # Terraform Version Manager
 
-Install and quickly switch terraform versions
+Lightweight bash script to manage and quickly switch terraform versions
 
 ## Requirements
 
-Only Linux and macOS are supported. OS detection only works for `amd64` since I don't have an arm device for testing. This is a bash script, no native Windows support is planned. 
+Currently tested on macOS x64 and arm64. May test on Linux when I get to it, contributions welcome. This is a bash script, no native Windows support is planned - If you get this to work on WSL2, let me know ;)
 
 ## Setup
 
-- Clone this repo and copy [tfm](./tfm) somewhere into your `$PATH`
-- Make sure `~/.local/bin` exists and is on your path
+- Download https://raw.githubusercontent.com/joerx/tfm/master/tfm and copy somewhere into your `$PATH`
+- Make sure `~/.local/bin` exists and is on your `$PATH`
 - Alternatively, set `TFM_PREFIX` to a different value in your shell profile
 
 ```sh
@@ -36,43 +36,44 @@ List versions:
 
 ```sh
 Versions:
-* 0.11.14
-  0.12.16
+* 1.0.11
+  1.1.7
 
 Aliases:
-  terraform = 0.11.14
-  tf12 = 0.12.18
+  terraform = 1.0.11
+  tf10 = 1.0.11
+  tf11 = 1.1.7
 ```
 
 Switch default version:
 
 ```sh
-$ tfm use 0.12.18
-Aliased terraform version 0.12.18 to terraform
-Current terraform version is 0.12.18
+$ tfm use 1.1.7
+Aliased terraform version 1.1.7 to terraform
+Current terraform version is 1.1.7
 
 $ terraform version
-Terraform v0.12.18
+Terraform v1.1.7
 ```
 
 Set an alias:
 
 ```sh
-$ tfm alias 0.12.18 tf12
-Aliased terraform version 0.12.18 to tf12
+$ tfm alias 1.1.7 tf11
+Aliased terraform version 1.1.7 to tf11
 ```
 
 Install:
 
 ```sh
-$ tfm install 0.12.5
+$ tfm install 1.1.7
 ...
 ```
 
 List installation candidates:
 
 ```sh
-$ tfm list-remote | grep ^0.12
+$ tfm releases | grep ^1.1
 ```
 
 ## Customization
