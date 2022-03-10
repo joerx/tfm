@@ -84,8 +84,11 @@ Some env vars can be used to customize those defaults. Run `tfm printenv` to see
 
 ```
 $ tfm printenv
-TFM_PREFIX: ~/.opt/bin
-TFM_DIR: ~/.tfm
+Architecture:
+  darwin_arm64
+Environment:
+  TFM_PREFIX: /Users/joerg.henning/.local/bin
+  TFM_DIR: /Users/joerg.henning/.tfm
 ```
 
 ## Acknowledgements
